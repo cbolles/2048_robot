@@ -1,0 +1,10 @@
+__pycache__/
+
+# Mac OS
+.DS_Store/
+
+# Compiled Python Files
+*.pyc
+
+# IDE
+.vscode/
