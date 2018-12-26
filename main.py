@@ -1,22 +1,26 @@
 import pygame
-from game_objects import Tile, Stack, TileQueue
+from game_objects import Tile, Stack, TileQueue, ScoreDisplay
 
 
 # Default Values
 SIZE = (1200, 800)
 NUM_STACKS = 4
+FONT_SIZE = 30
 
 # Initialize Pygame
 pygame.init()
+pygame.font.init()
+font = pygame.font.SysFont('Comic Sans MS', FONT_SIZE)
 screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption("2048 Solitaire")
 
 # Game Objects
 stacks = []
 tile_queue = TileQueue(20, 650)
+score_display = ScoreDisplay(1000, 0, font)
 
 # Test values
-test_tiles = [Tile(2), Tile(4), Tile(8)]
+test_tiles = [Tile(8), Tile(4), Tile(2)]
 
 
 def generate_stacks(startX, startY):
@@ -33,6 +37,7 @@ def generate_stacks(startX, startY):
 def main():
     # Initalize Game Objects
     generate_stacks(0, 20)
+    print(stacks[0].add_tile(Tile(2)))
     running = True
     while running:
         # Listen for quite request from user
@@ -42,6 +47,7 @@ def main():
         for stack in stacks:
             stack.draw(screen)
         tile_queue.draw(screen)
+        score_display.draw(screen)
         pygame.display.flip()
 
 

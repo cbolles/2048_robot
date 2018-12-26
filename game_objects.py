@@ -20,12 +20,27 @@ class Tile:
     def draw(self, screen, xPos, yPos):
         screen.blit(self.image, (xPos, yPos))
 
+    def __eq__(self, other):
+        if isinstance(other, Tile):
+            return self.value == other.value
+        return False
+
+    def __str__(self):
+        return str(self.value)
+
 
 class Stack:
     def __init__(self, xPos, yPos):
         self.tiles = []
         self.xPos = xPos
         self.yPos = yPos
+
+    def merge(self, multiplier):
+        if len(self.tiles) < 2 or not self.tiles[-1] == self.tiles[-2]:
+            return 0
+        result = self.tiles.pop(-1).value + self.tiles.pop(-1).value
+        self.tiles.append(Tile(result))
+        return result * multiplier + self.merge(multiplier + 1)
 
     def add_tile(self, tile):
         # If adding a list of tiles
@@ -34,6 +49,7 @@ class Stack:
         # If adding a single tile
         else:
             self.tiles.append(tile)
+        return self.merge(1)
 
     def draw(self, screen):
         tileX = self.xPos
@@ -63,3 +79,19 @@ class TileQueue:
         for tile in self.tiles:
             tile.draw(screen, tileX, tileY)
             tileX += tile.width / 2
+
+
+class ScoreDisplay:
+    def __init__(self, xPos, yPos, font, color=(255, 255, 255)):
+        self.xPos = xPos
+        self.yPos = yPos
+        self.font = font
+        self.score = 0
+        self.color = color
+
+    def draw(self, screen):
+        text_surface = self.font.render('Score: ' + str(self.score), False, self.color)
+        screen.blit(text_surface, (self.xPos, self.yPos))
+
+    def increase_score(self, score):
+        self.score += score
