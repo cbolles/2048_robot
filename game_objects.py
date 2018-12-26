@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import pygame
+from random import randint
 
 
 class Tile:
@@ -34,6 +35,7 @@ class Stack:
         self.tiles = []
         self.xPos = xPos
         self.yPos = yPos
+        self.collision_box = pygame.Rect(self.xPos, self.yPos, 0, 0)
 
     def merge(self, multiplier):
         if len(self.tiles) < 2 or not self.tiles[-1] == self.tiles[-2]:
@@ -57,6 +59,11 @@ class Stack:
         for tile in self.tiles:
             tile.draw(screen, tileX, tileY)
             tileY += tile.height / 3
+        # Update Collision box
+        if len(self.tiles) > 0:
+            box_height = tileY - self.yPos
+            box_width = self.tiles[0].width
+            self.collision_box = pygame.Rect(self.xPos, self.yPos, box_height, box_width)
 
 
 class TileQueue:
@@ -65,20 +72,25 @@ class TileQueue:
         self.xPos = xPos
         self.yPos = yPos
 
+    def generate_tile(self):
+        prob = randint(1, 6)
+        return Tile(pow(2, prob))
+
     def init_tiles(self):
-        # TODO: Add proper generator
-        return [Tile(2), Tile(4)]
+        return [self.generate_tile(), self.generate_tile()]
 
     def pull(self):
-        # TODO: Get the next value in queue and generate next value
-        pass
+        tile = self.tiles.pop(0)
+        self.tiles.append(self.generate_tile())
 
     def draw(self, screen):
+        for tile in self.tiles:
+            print(tile)
         tileX = self.xPos
         tileY = self.yPos
-        for tile in self.tiles:
-            tile.draw(screen, tileX, tileY)
-            tileX += tile.width / 2
+        for i in range(len(self.tiles) - 1, -1, -1):
+            self.tiles[i].draw(screen, tileX, tileY)
+            tileX += self.tiles[i].width
 
 
 class ScoreDisplay:
