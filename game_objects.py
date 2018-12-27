@@ -50,7 +50,10 @@ class Stack:
         # If adding a single tile
         else:
             self.tiles.append(tile)
-        return self.merge(1)
+        score_change = self.merge(1)
+        if self.tiles[0] == Tile(2048):
+            self.tiles = []
+        return score_change
 
     def draw(self, screen):
         tileX = self.xPos
@@ -58,6 +61,9 @@ class Stack:
         for tile in self.tiles:
             tile.draw(screen, tileX, tileY)
             tileY += tile.height / 3
+
+    def __len__(self):
+        return len(self.tiles)
 
 
 class TileQueue:
@@ -116,6 +122,9 @@ class DiscardPile:
 
     def pile_full(self):
         return self.num_discards == self.max_discards
+
+    def clear_discards(self):
+        self.num_discards = 0
 
     def draw(self, screen):
         box_x = self.xPos

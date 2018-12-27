@@ -52,6 +52,9 @@ def stack_change(stack_number):
         stack = stacks[stack_number]
         score_change = stack.add_tile(tile_queue.pull())
         score_display.increase_score(score_change)
+        # 2048 achieved
+        if len(stack) == 0:
+            discard_pile.clear_discards()
     else:
         if not discard_pile.pile_full():
             tile_queue.pull()
