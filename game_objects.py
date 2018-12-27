@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import pygame
 from random import randint
+from configparser import ConfigParser
 
 
 class Tile:
@@ -93,15 +94,14 @@ class TileQueue:
 
 
 class ScoreDisplay:
-    def __init__(self, xPos, yPos, font, color=(255, 255, 255)):
+    def __init__(self, xPos, yPos, color=(255, 255, 255)):
         self.xPos = xPos
         self.yPos = yPos
-        self.font = font
         self.score = 0
         self.color = color
 
-    def draw(self, screen):
-        text_surface = self.font.render('Score: ' + str(self.score), False, self.color)
+    def draw(self, screen, font):
+        text_surface = font.render('Score: ' + str(self.score), False, self.color)
         screen.blit(text_surface, (self.xPos, self.yPos))
 
     def increase_score(self, score):
@@ -139,3 +139,65 @@ class DiscardPile:
             else:
                 pygame.draw.rect(screen, color_outline, (box_x, box_y, box_width, box_height), 3)
             box_y -= box_height
+
+
+class Game:
+    def __init__(self, config_file_location):
+        config = ConfigParser()
+        config.read(config_file_location)
+        self.size = self.get_pair(config['size']['screen_size'])
+        self.init_stacks(config)
+        self.init_tile_queue(config)
+        self.init_score_display(config)
+        self.init_discard_pile(config)
+
+    def init_stacks(self, config):
+        num_stacks = int(config['game_setup']['num_stacks'])
+        stack_x, stack_y = self.get_pair(config['position']['stack_start'])
+        distance = self.size[0] // num_stacks
+        self.stacks = []
+        for i in range(0, num_stacks):
+            self.stacks.append(Stack(stack_x, stack_y))
+            stack_x += distance
+
+    def init_tile_queue(self, config):
+        queue_x, queue_y = self.get_pair(config['position']['tile_queue'])
+        self.tile_queue = TileQueue(queue_x, queue_y)
+
+    def init_score_display(self, config):
+        score_x, score_y = self.get_pair(config['position']['score_display'])
+        self.score_display = ScoreDisplay(score_x, score_y)
+
+    def init_discard_pile(self, config):
+        pile_x, pile_y = self.get_pair(config['position']['discard_pile'])
+        self.discard_pile = DiscardPile(pile_x, pile_y)
+
+    def get_pair(self, raw_values):
+        str_values = raw_values.split(',')
+        pos_x = int(str_values[0])
+        pos_y = int(str_values[1])
+        return (pos_x, pos_y)
+
+    def make_move(self, pile_number):
+        # If adding to a stack
+        if pile_number < len(self.stacks):
+            stack = self.stacks[pile_number]
+            score_change = stack.add_tile(self.tile_queue.pull())
+            self.score_display.increase_score(score_change)
+            # 2048 Achieved
+            if len(stack) == 0:
+                self.discard_pile.clear_discards()
+        # If trying to add to discard pile
+        else:
+            if not self.discard_pile.pile_full():
+                self.tile_queue.pull()
+                self.discard_pile.add_discard()
+
+    def draw(self, screen, font):
+        screen.fill((0, 0, 0))
+        for stack in self.stacks:
+            stack.draw(screen)
+        self.tile_queue.draw(screen)
+        self.score_display.draw(screen, font)
+        self.discard_pile.draw(screen)
+        pygame.display.flip()
