@@ -63,7 +63,8 @@ class Stack:
         if len(self.tiles) > 0:
             box_height = tileY - self.yPos
             box_width = self.tiles[0].width
-            self.collision_box = pygame.Rect(self.xPos, self.yPos, box_height, box_width)
+            self.collision_box = pygame.Rect(self.xPos, self.yPos, box_width, box_height)
+            pygame.draw.rect(screen, (255, 255, 255), self.collision_box, 3)
 
 
 class TileQueue:
@@ -82,10 +83,9 @@ class TileQueue:
     def pull(self):
         tile = self.tiles.pop(0)
         self.tiles.append(self.generate_tile())
+        return tile
 
     def draw(self, screen):
-        for tile in self.tiles:
-            print(tile)
         tileX = self.xPos
         tileY = self.yPos
         for i in range(len(self.tiles) - 1, -1, -1):

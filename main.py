@@ -36,7 +36,8 @@ def generate_stacks(startX, startY):
         stacks[i].add_tile(test_tiles)
 
 
-def display_game_objects():
+def update_game_objects():
+    screen.fill((0, 0, 0))
     for stack in stacks:
         stack.draw(screen)
     tile_queue.draw(screen)
@@ -49,8 +50,9 @@ def stack_change(mouse_x, mouse_y):
     for stack in stacks:
         if stack.collision_box.collidepoint(mouse_x, mouse_y):
             score_change = stack.add_tile(tile_queue.pull())
+            print(score_change)
             score_display.increase_score(score_change)
-            display_game_objects()
+            update_game_objects()
             return
 
 
@@ -58,7 +60,7 @@ def main():
     # Initalize Game Objects
     generate_stacks(0, 20)
     running = True
-    display_game_objects()
+    update_game_objects()
     while running:
         # Listen for quite request from user
         for event in pygame.event.get():
