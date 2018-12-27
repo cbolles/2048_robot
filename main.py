@@ -1,5 +1,5 @@
 import pygame
-from game_objects import Tile, Stack, TileQueue, ScoreDisplay
+from game_objects import Tile, Stack, TileQueue, ScoreDisplay, DiscardPile
 
 
 # Default Values
@@ -20,6 +20,7 @@ clock = pygame.time.Clock()
 stacks = []
 tile_queue = TileQueue(60, 650)
 score_display = ScoreDisplay(1000, 0, font)
+discard_pile = DiscardPile(1100, 500)
 
 # Test values
 test_tiles = [Tile(8), Tile(4), Tile(2)]
@@ -42,13 +43,22 @@ def update_game_objects():
         stack.draw(screen)
     tile_queue.draw(screen)
     score_display.draw(screen)
+    discard_pile.draw(screen)
     pygame.display.flip()
 
 
 def stack_change(stack_number):
-    stack = stacks[stack_number]
-    score_change = stack.add_tile(tile_queue.pull())
-    score_display.increase_score(score_change)
+    if stack_number < len(stacks):
+        stack = stacks[stack_number]
+        score_change = stack.add_tile(tile_queue.pull())
+        score_display.increase_score(score_change)
+        # 2048 achieved
+        if len(stack) == 0:
+            discard_pile.clear_discards()
+    else:
+        if not discard_pile.pile_full():
+            tile_queue.pull()
+            discard_pile.add_discard()
     update_game_objects()
 
 

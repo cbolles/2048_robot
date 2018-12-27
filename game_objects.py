@@ -50,7 +50,10 @@ class Stack:
         # If adding a single tile
         else:
             self.tiles.append(tile)
-        return self.merge(1)
+        score_change = self.merge(1)
+        if self.tiles[0] == Tile(2048):
+            self.tiles = []
+        return score_change
 
     def draw(self, screen):
         tileX = self.xPos
@@ -58,6 +61,9 @@ class Stack:
         for tile in self.tiles:
             tile.draw(screen, tileX, tileY)
             tileY += tile.height / 3
+
+    def __len__(self):
+        return len(self.tiles)
 
 
 class TileQueue:
@@ -100,3 +106,36 @@ class ScoreDisplay:
 
     def increase_score(self, score):
         self.score += score
+
+
+class DiscardPile:
+    def __init__(self, xPos, yPos, height=100, width=50, max_discards=2):
+        self.xPos = xPos
+        self.yPos = yPos
+        self.height = height
+        self.width = width
+        self.max_discards = max_discards
+        self.num_discards = 0
+
+    def add_discard(self):
+        self.num_discards += 1
+
+    def pile_full(self):
+        return self.num_discards == self.max_discards
+
+    def clear_discards(self):
+        self.num_discards = 0
+
+    def draw(self, screen):
+        box_x = self.xPos
+        box_y = self.yPos
+        box_height = self.height / self.max_discards
+        box_width = self.width
+        color_fill = (255, 0, 0)
+        color_outline = (255, 255, 255)
+        for i in range(0, self.max_discards):
+            if i < self.num_discards:
+                pygame.draw.rect(screen, color_fill, (box_x, box_y, box_width, box_height))
+            else:
+                pygame.draw.rect(screen, color_outline, (box_x, box_y, box_width, box_height), 3)
+            box_y -= box_height
