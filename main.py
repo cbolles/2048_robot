@@ -45,15 +45,11 @@ def update_game_objects():
     pygame.display.flip()
 
 
-def stack_change(mouse_x, mouse_y):
-    print(mouse_x, mouse_y)
-    for stack in stacks:
-        if stack.collision_box.collidepoint(mouse_x, mouse_y):
-            score_change = stack.add_tile(tile_queue.pull())
-            print(score_change)
-            score_display.increase_score(score_change)
-            update_game_objects()
-            return
+def stack_change(stack_number):
+    stack = stacks[stack_number]
+    score_change = stack.add_tile(tile_queue.pull())
+    score_display.increase_score(score_change)
+    update_game_objects()
 
 
 def main():
@@ -66,9 +62,8 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = event.pos
-                stack_change(mouse_x, mouse_y)
+            if event.type == pygame.KEYDOWN:
+                stack_change(int(pygame.key.name(event.key)[1]))
         clock.tick(FRAMERATE)
 
 

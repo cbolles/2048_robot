@@ -61,7 +61,7 @@ class Stack:
             tileY += tile.height / 3
         # Update Collision box
         if len(self.tiles) > 0:
-            box_height = tileY - self.yPos
+            box_height = tileY - self.yPos + self.tiles[0].height
             box_width = self.tiles[0].width
             self.collision_box = pygame.Rect(self.xPos, self.yPos, box_width, box_height)
             pygame.draw.rect(screen, (255, 255, 255), self.collision_box, 3)
