@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import pygame
+from random import randint
 
 
 class Tile:
@@ -65,20 +66,24 @@ class TileQueue:
         self.xPos = xPos
         self.yPos = yPos
 
+    def generate_tile(self):
+        prob = randint(1, 6)
+        return Tile(pow(2, prob))
+
     def init_tiles(self):
-        # TODO: Add proper generator
-        return [Tile(2), Tile(4)]
+        return [self.generate_tile(), self.generate_tile()]
 
     def pull(self):
-        # TODO: Get the next value in queue and generate next value
-        pass
+        tile = self.tiles.pop(0)
+        self.tiles.append(self.generate_tile())
+        return tile
 
     def draw(self, screen):
         tileX = self.xPos
         tileY = self.yPos
-        for tile in self.tiles:
-            tile.draw(screen, tileX, tileY)
-            tileX += tile.width / 2
+        for i in range(len(self.tiles) - 1, -1, -1):
+            self.tiles[i].draw(screen, tileX, tileY)
+            tileX += self.tiles[i].width
 
 
 class ScoreDisplay:

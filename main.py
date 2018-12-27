@@ -6,6 +6,7 @@ from game_objects import Tile, Stack, TileQueue, ScoreDisplay
 SIZE = (1200, 800)
 NUM_STACKS = 4
 FONT_SIZE = 30
+FRAMERATE = 10
 
 # Initialize Pygame
 pygame.init()
@@ -13,10 +14,11 @@ pygame.font.init()
 font = pygame.font.SysFont('Comic Sans MS', FONT_SIZE)
 screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption("2048 Solitaire")
+clock = pygame.time.Clock()
 
 # Game Objects
 stacks = []
-tile_queue = TileQueue(20, 650)
+tile_queue = TileQueue(60, 650)
 score_display = ScoreDisplay(1000, 0, font)
 
 # Test values
@@ -34,21 +36,35 @@ def generate_stacks(startX, startY):
         stacks[i].add_tile(test_tiles)
 
 
+def update_game_objects():
+    screen.fill((0, 0, 0))
+    for stack in stacks:
+        stack.draw(screen)
+    tile_queue.draw(screen)
+    score_display.draw(screen)
+    pygame.display.flip()
+
+
+def stack_change(stack_number):
+    stack = stacks[stack_number]
+    score_change = stack.add_tile(tile_queue.pull())
+    score_display.increase_score(score_change)
+    update_game_objects()
+
+
 def main():
     # Initalize Game Objects
     generate_stacks(0, 20)
-    print(stacks[0].add_tile(Tile(2)))
     running = True
+    update_game_objects()
     while running:
         # Listen for quite request from user
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        for stack in stacks:
-            stack.draw(screen)
-        tile_queue.draw(screen)
-        score_display.draw(screen)
-        pygame.display.flip()
+            if event.type == pygame.KEYDOWN:
+                stack_change(int(pygame.key.name(event.key)[1]))
+        clock.tick(FRAMERATE)
 
 
 if __name__ == '__main__':
