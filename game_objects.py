@@ -35,7 +35,6 @@ class Stack:
         self.tiles = []
         self.xPos = xPos
         self.yPos = yPos
-        self.collision_box = pygame.Rect(self.xPos, self.yPos, 0, 0)
 
     def merge(self, multiplier):
         if len(self.tiles) < 2 or not self.tiles[-1] == self.tiles[-2]:
@@ -59,12 +58,6 @@ class Stack:
         for tile in self.tiles:
             tile.draw(screen, tileX, tileY)
             tileY += tile.height / 3
-        # Update Collision box
-        if len(self.tiles) > 0:
-            box_height = tileY - self.yPos + self.tiles[0].height
-            box_width = self.tiles[0].width
-            self.collision_box = pygame.Rect(self.xPos, self.yPos, box_width, box_height)
-            pygame.draw.rect(screen, (255, 255, 255), self.collision_box, 3)
 
 
 class TileQueue:
