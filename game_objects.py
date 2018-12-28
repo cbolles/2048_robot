@@ -60,6 +60,12 @@ class Stack:
     def is_full(self):
         return len(self.tiles) == self.max_size
 
+    def get_worth(self):
+        worth = 0
+        for tile in self.tiles:
+            worth += tile.value
+        return worth
+
     def draw(self, screen):
         tileX = self.xPos
         tileY = self.yPos
