@@ -199,6 +199,12 @@ class Game:
                 self.tile_queue.pull()
                 self.discard_pile.add_discard()
 
+    def game_over(self):
+        for stack in self.stacks:
+            if not stack.is_full():
+                return False
+        return True
+
     def draw(self, screen, font):
         screen.fill((0, 0, 0))
         for stack in self.stacks:
