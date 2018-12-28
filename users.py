@@ -52,6 +52,21 @@ class Human(User):
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
+                    pile_number = int(pygame.key.name(event.key))
+                    self.game.make_move(pile_number)
+                    self.game.draw(self.screen, self.font)
+            self.clock.tick(self.framerate)
+
+
+class BasicBot(User):
+    def run(self):
+        running = True
+        self.game.draw(self.screen, self.font)
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
                     pile_number = int(pygame.key.name(event.key)[1])
                     self.game.make_move(pile_number)
                     self.game.draw(self.screen, self.font)

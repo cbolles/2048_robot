@@ -32,10 +32,11 @@ class Tile:
 
 
 class Stack:
-    def __init__(self, xPos, yPos):
+    def __init__(self, xPos, yPos, max_size):
         self.tiles = []
         self.xPos = xPos
         self.yPos = yPos
+        self.max_size = max_size
 
     def merge(self, multiplier):
         if len(self.tiles) < 2 or not self.tiles[-1] == self.tiles[-2]:
@@ -46,15 +47,18 @@ class Stack:
 
     def add_tile(self, tile):
         # If adding a list of tiles
-        if isinstance(tile, list):
+        if isinstance(tile, list) and len(self.tiles + tile) <= self.max_size:
             self.tiles = self.tiles + tile
         # If adding a single tile
-        else:
+        elif len(self.tiles) < self.max_size:
             self.tiles.append(tile)
         score_change = self.merge(1)
         if self.tiles[0] == Tile(2048):
             self.tiles = []
         return score_change
+
+    def is_full(self):
+        return len(self.tiles) == self.max_size
 
     def draw(self, screen):
         tileX = self.xPos
@@ -153,11 +157,12 @@ class Game:
 
     def init_stacks(self, config):
         num_stacks = int(config['game_setup']['num_stacks'])
+        max_size = int(config['game_setup']['max_stack_size'])
         stack_x, stack_y = self.get_pair(config['position']['stack_start'])
         distance = self.size[0] // num_stacks
         self.stacks = []
         for i in range(0, num_stacks):
-            self.stacks.append(Stack(stack_x, stack_y))
+            self.stacks.append(Stack(stack_x, stack_y, max_size))
             stack_x += distance
 
     def init_tile_queue(self, config):
@@ -182,11 +187,12 @@ class Game:
         # If adding to a stack
         if pile_number < len(self.stacks):
             stack = self.stacks[pile_number]
-            score_change = stack.add_tile(self.tile_queue.pull())
-            self.score_display.increase_score(score_change)
-            # 2048 Achieved
-            if len(stack) == 0:
-                self.discard_pile.clear_discards()
+            if not stack.is_full():
+                score_change = stack.add_tile(self.tile_queue.pull())
+                self.score_display.increase_score(score_change)
+                # 2048 Achieved
+                if len(stack) == 0:
+                    self.discard_pile.clear_discards()
         # If trying to add to discard pile
         else:
             if not self.discard_pile.pile_full():
