@@ -39,5 +39,22 @@ class User(ABC):
         return (pos_x, pos_y)
 
     @abstractmethod
-    def run(self):
+    def get_move(self, event):
         pass
+
+    def run(self):
+        running = True
+        self.game.draw(self.screen, self.font)
+        while running:
+            running = not self.game.game_over()
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    running = False
+            pile_number = self.get_move(events)
+            if pile_number != -1:
+                self.game.make_move(pile_number)
+                self.game.draw(self.screen, self.font)
+        self.clock.tick(self.framerate)
+        print('Game Over')
+        print(self.game.score_display.score)
