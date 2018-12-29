@@ -1,7 +1,7 @@
 from game_objects import Game
 import os
 from pathlib import Path
-from users import BasicBot
+from users.basic_bot import BasicBot
 
 
 def main():
