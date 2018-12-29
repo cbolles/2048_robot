@@ -43,17 +43,5 @@ class BasicBot(User):
             return self.get_highest_score([i for i in range(0, len(self.game.stacks))])
         return self.get_highest_score(lowest_stack_ids)
 
-    def run(self):
-        running = True
-        self.game.draw(self.screen, self.font)
-        while running:
-            running = not self.game.game_over()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-            pile_number = self.get_optimal_stack(self.game.tile_queue.peak(0))
-            self.game.make_move(pile_number)
-            self.game.draw(self.screen, self.font)
-            self.clock.tick(self.framerate)
-        print('Game Over')
-        print(self.game.score_display.score)
+    def get_move(self, event):
+        return self.get_optimal_stack(self.game.tile_queue.peak(0))
