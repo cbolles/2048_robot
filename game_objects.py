@@ -50,7 +50,7 @@ class Stack:
         if isinstance(tile, list) and len(self.tiles + tile) <= self.max_size:
             self.tiles = self.tiles + tile
         # If adding a single tile
-        elif len(self.tiles) < self.max_size:
+        elif len(self.tiles) < self.max_size or self.tiles[-1].value == tile.value:
             self.tiles.append(tile)
         score_change = self.merge(1)
         if self.tiles[0] == Tile(2048):
