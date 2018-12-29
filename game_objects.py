@@ -95,6 +95,9 @@ class TileQueue:
         self.tiles.append(self.generate_tile())
         return tile
 
+    def peak(self, index):
+        return self.tiles[index]
+
     def draw(self, screen):
         tileX = self.xPos
         tileY = self.yPos
