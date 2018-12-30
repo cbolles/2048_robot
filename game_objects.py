@@ -50,7 +50,7 @@ class Stack:
         if isinstance(tile, list) and len(self.tiles + tile) <= self.max_size:
             self.tiles = self.tiles + tile
         # If adding a single tile
-        elif len(self.tiles) < self.max_size or self.tiles[-1].value == tile.value:
+        else:
             self.tiles.append(tile)
         score_change = self.merge(1)
         if self.tiles[0] == Tile(2048):
@@ -196,7 +196,7 @@ class Game:
         # If adding to a stack
         if pile_number < len(self.stacks):
             stack = self.stacks[pile_number]
-            if not stack.is_full():
+            if not stack.is_full() or stack.tiles[-1].value == self.tile_queue.peak(0).value:
                 score_change = stack.add_tile(self.tile_queue.pull())
                 self.score_display.increase_score(score_change)
                 # 2048 Achieved
