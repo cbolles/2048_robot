@@ -27,6 +27,12 @@ class Tile:
             return self.value == other.value
         return False
 
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
     def __str__(self):
         return str(self.value)
 
@@ -133,7 +139,7 @@ class DiscardPile:
     def add_discard(self):
         self.num_discards += 1
 
-    def pile_full(self):
+    def is_full(self):
         return self.num_discards == self.max_discards
 
     def clear_discards(self):
@@ -154,6 +160,11 @@ class DiscardPile:
             box_y -= box_height
 
 
+class InvalidMoveException(Exception):
+    def __init__(self, message):
+        Exception.__init__(self, message)
+
+
 class Game:
     def __init__(self, config_file_location):
         config = ConfigParser()
@@ -165,13 +176,13 @@ class Game:
         self.init_discard_pile(config)
 
     def init_stacks(self, config):
+        self.piles = dict()
         num_stacks = int(config['game_setup']['num_stacks'])
         max_size = int(config['game_setup']['max_stack_size'])
         stack_x, stack_y = self.get_pair(config['position']['stack_start'])
         distance = self.size[0] // num_stacks
-        self.stacks = []
         for i in range(0, num_stacks):
-            self.stacks.append(Stack(stack_x, stack_y, max_size))
+            self.piles[i] = Stack(stack_x, stack_y, max_size)
             stack_x += distance
 
     def init_tile_queue(self, config):
@@ -184,7 +195,8 @@ class Game:
 
     def init_discard_pile(self, config):
         pile_x, pile_y = self.get_pair(config['position']['discard_pile'])
-        self.discard_pile = DiscardPile(pile_x, pile_y)
+        self.piles[len(self.piles)] = DiscardPile(pile_x, pile_y)
+        self.discard_id = len(self.piles) - 1
 
     def get_pair(self, raw_values):
         str_values = raw_values.split(',')
@@ -192,33 +204,44 @@ class Game:
         pos_y = int(str_values[1])
         return (pos_x, pos_y)
 
-    def make_move(self, pile_number):
-        # If adding to a stack
-        if pile_number < len(self.stacks):
-            stack = self.stacks[pile_number]
-            if not stack.is_full() or stack.tiles[-1].value == self.tile_queue.peak(0).value:
-                score_change = stack.add_tile(self.tile_queue.pull())
-                self.score_display.increase_score(score_change)
-                # 2048 Achieved
-                if len(stack) == 0:
-                    self.discard_pile.clear_discards()
-        # If trying to add to discard pile
+    def validate(self, pile_number):
+        # Check if the pile number is a valid pile id
+        if pile_number >= len(self.piles):
+            raise InvalidMoveException(str(pile_number) + ' not found in piles')
+        # If the requested pile is the discard pile, check if the pile is full
+        if isinstance(self.piles[pile_number], DiscardPile):
+            if self.piles[pile_number].is_full():
+                raise InvalidMoveException('Discard pile is full')
+        # If the requested pile is a stack, check if the stack can accept another tile
         else:
-            if not self.discard_pile.pile_full():
-                self.tile_queue.pull()
-                self.discard_pile.add_discard()
+            next_tile = self.tile_queue.peak(0)
+            if self.piles[pile_number].is_full() and not self.piles[pile_number].tiles[-1] == next_tile:
+                raise InvalidMoveException('Stack full and next tile does not match top tile')
+
+    def make_move(self, pile_number):
+        self.validate(pile_number)
+        next_tile = self.tile_queue.pull()
+        # If adding to the discard
+        if pile_number == self.discard_id:
+            self.piles[pile_number].add_discard()
+        # If adding to a stack
+        else:
+            score_change = self.piles[pile_number].add_tile(next_tile)
+            # 2048 achieved
+            if len(self.piles[pile_number]) == 0:
+                self.piles[self.discard_id].clear_discards()
+            self.score_display.increase_score(score_change)
 
     def game_over(self):
-        for stack in self.stacks:
-            if not stack.is_full():
+        for pile_id in self.piles:
+            if not self.piles[pile_id].is_full():
                 return False
         return True
 
     def draw(self, screen, font):
         screen.fill((0, 0, 0))
-        for stack in self.stacks:
-            stack.draw(screen)
+        for pile_id in self.piles:
+            self.piles[pile_id].draw(screen)
         self.tile_queue.draw(screen)
         self.score_display.draw(screen, font)
-        self.discard_pile.draw(screen)
         pygame.display.flip()

@@ -2,6 +2,7 @@ from game_objects import Game
 import os
 from pathlib import Path
 from users.genetic_bot import GeneticBot
+from users.human import Human
 
 
 def main():
@@ -16,7 +17,8 @@ def main():
         'num_discontinuities_weight': -5,
         'num_discards_weight': 0
     }
-    user = GeneticBot(config_path, game, dna_init=dna)
+    # user = GeneticBot(config_path, game, dna_init=dna)
+    user = Human(config_path, game)
     user.run()
 
 
