@@ -99,6 +99,7 @@ class GeneticBot(User):
     def __init__(self, config, game, dna_init={}):
         super(GeneticBot, self).__init__(config, game)
         self.dna = DNA(dna_init)
+        self.fitness = 0
 
     def get_move_stats(self, tile, stack_id):
         move = Move()
@@ -117,12 +118,8 @@ class GeneticBot(User):
 
     def get_move(self, event):
         moves = self.get_possible_moves()
-        moves = sorted(moves, key=lambda move: move.evaluation)
-        for move in moves:
-            print(move.evaluation)
-        if len(moves) == 0:
-            return -1
-        move = moves[-1]
-        print(move.stack_number, move.evaluation, move.num_discontinuities)
-        print()
-        return move.stack_number
+        return sorted(moves, key=lambda move: move.evaluation)[-1].stack_number
+
+    def evaluate_fitness(self):
+        self.run()
+        self.fitness = self.game.score
