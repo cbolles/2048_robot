@@ -23,9 +23,7 @@ class Tile:
         screen.blit(self.image, (xPos, yPos))
 
     def __eq__(self, other):
-        if isinstance(other, Tile):
-            return self.value == other.value
-        return False
+        return self.value == other.value
 
     def __lt__(self, other):
         return self.value < other.value
@@ -82,6 +80,18 @@ class Stack:
     def __len__(self):
         return len(self.tiles)
 
+    def __lt__(self, other):
+        return self.get_worth() < other.get_worth()
+
+    def __gt__(self, other):
+        return self.get_worth() > other.get_worth()
+
+    def __eq__(self, other):
+        return self.get_worth() == other.get_worth()
+
+    def __str__(self):
+        return 'Tile: ' + str(self.tiles)
+
 
 class TileQueue:
     def __init__(self, xPos, yPos):
@@ -111,6 +121,9 @@ class TileQueue:
             self.tiles[i].draw(screen, tileX, tileY)
             tileX += self.tiles[i].width
 
+    def __str__(self):
+        return 'Tile Queue: ' + str(self.tiles)
+
 
 class ScoreDisplay:
     def __init__(self, xPos, yPos, color=(255, 255, 255)):
@@ -125,6 +138,9 @@ class ScoreDisplay:
 
     def increase_score(self, score):
         self.score += score
+
+    def __str__(self):
+        return 'ScoreDisplay: ' + str(self.score)
 
 
 class DiscardPile:
@@ -158,6 +174,9 @@ class DiscardPile:
             else:
                 pygame.draw.rect(screen, color_outline, (box_x, box_y, box_width, box_height), 3)
             box_y -= box_height
+
+    def __str__(self):
+        return 'DiscardPile: ' + str(self.num_discards) + ' used out of ' + str(self.max_discards) + ' discards'
 
 
 class InvalidMoveException(Exception):
@@ -245,3 +264,6 @@ class Game:
         self.tile_queue.draw(screen)
         self.score_display.draw(screen, font)
         pygame.display.flip()
+    
+    def __str__(self):
+        return 'Game: ' + str(self.score_display.score)
