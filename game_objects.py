@@ -237,17 +237,18 @@ class Game:
             if self.piles[pile_number].is_full() and not self.piles[pile_number].tiles[-1] == next_tile:
                 raise InvalidMoveException('Stack full and next tile does not match top tile')
 
-    def make_move(self, pile_number):
-        self.validate(pile_number)
+    def make_move(self, move):
+        pile_id = move.pile_id
+        self.validate(pile_id)
         next_tile = self.tile_queue.pull()
         # If adding to the discard
-        if pile_number == self.discard_id:
-            self.piles[pile_number].add_discard()
+        if pile_id == self.discard_id:
+            self.piles[pile_id].add_discard()
         # If adding to a stack
         else:
-            score_change = self.piles[pile_number].add_tile(next_tile)
+            score_change = self.piles[pile_id].add_tile(next_tile)
             # 2048 achieved
-            if len(self.piles[pile_number]) == 0:
+            if len(self.piles[pile_id]) == 0:
                 self.piles[self.discard_id].clear_discards()
             self.score_display.increase_score(score_change)
 
@@ -264,6 +265,6 @@ class Game:
         self.tile_queue.draw(screen)
         self.score_display.draw(screen, font)
         pygame.display.flip()
-    
+
     def __str__(self):
         return 'Game: ' + str(self.score_display.score)
