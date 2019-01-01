@@ -10,15 +10,15 @@ def main():
     config_path = str(current_dir / 'resources' / 'config' / 'basic_ui.ini')
     game = Game(config_path)
     dna = {
-        'merges_weight': 10,
+        'merges_weight': 0,
         'height_largest_weight': 0,
         'height_lowest_weight': 0,
         'height_average_weight': 0,
         'num_discontinuities_weight': -5,
         'num_discards_weight': 0
     }
-    # user = GeneticBot(config_path, game, dna_init=dna)
-    user = Human(config_path, game)
+    user = GeneticBot(config_path, game, dna_init=dna)
+    # user = Human(config_path, game)
     user.run()
 
 

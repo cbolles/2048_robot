@@ -137,9 +137,9 @@ class User(ABC):
             for event in events:
                 if event.type == pygame.QUIT:
                     running = False
-            pile_number = self.get_move(events)
-            if pile_number != -1:
-                self.game.make_move(pile_number)
+            move = self.get_move(events)
+            if move is not None:
+                self.game.make_move(move)
                 self.game.draw(self.screen, self.font)
         self.clock.tick(self.framerate)
         print('Game Over')
