@@ -125,7 +125,7 @@ class User(ABC):
         return Move(self.game, pile_id)
 
     @abstractmethod
-    def get_move(self, event):
+    def get_move(self, events):
         pass
 
     def run(self):
