@@ -13,6 +13,7 @@ from pathlib import Path
 import pygame
 from random import randint
 from configparser import ConfigParser
+import abc
 
 
 class Tile:
@@ -155,7 +156,17 @@ class Tile:
         return 'Tile: ' + str(self.value)
 
 
-class Stack:
+class Pile(abc.ABC):
+    @abc.abstractclassmethod
+    def is_full(self):
+        pass
+
+    @abc.abstractclassmethod
+    def add_tile(self, tile):
+        pass
+
+
+class Stack(Pile):
     '''
     Represents the possible regions on which the user can stack tiles onto.
     This does not include any discards that the user may make
@@ -169,8 +180,10 @@ class Stack:
     tiles: `list` of Tile
     max_size: int
         The largest number of tiles the stack can hold before it is full
+    pile_id: int
+        The identifier of each individual stack
     '''
-    def __init__(self, x_pos: int, y_pos: int, max_size: int):
+    def __init__(self, x_pos: int, y_pos: int, max_size: int, pile_id: int):
         '''
         Initializes the stack with an empty list of tiles and with a given max size
         and coordinates for use with pygame
@@ -188,6 +201,7 @@ class Stack:
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.max_size = max_size
+        self.pile_id = pile_id
 
     def merge(self, multiplier: int) -> int:
         '''
@@ -327,11 +341,11 @@ class Stack:
 
     def __eq__(self, other) -> bool:
         '''
-        Stacks that have the same worth are equal
+        Stacks that have the same pile_id
 
         Paramters
         ---------
-        other: Tile
+        other: Pile
             The other tile to compare to
 
         Return
@@ -339,7 +353,7 @@ class Stack:
         bool
             True if the worth of this tile is the same as another
         '''
-        return self.get_worth() == other.get_worth()
+        return self.pile_id == other.pile_id
 
     def __str__(self) -> str:
         '''
@@ -351,6 +365,110 @@ class Stack:
             The type of the class with all the tiles in the class
         '''
         return 'Stack with tiles: ' + str(self.tiles)
+
+
+class DiscardPile(Pile):
+    '''
+    Represents discards made by the user. The actual Tiles discardsed are not kept
+    track of, only the number of discards
+
+    Attributes
+    ----------
+    x_pos: int
+        The x coordinate where to display the discard pile
+    y_pos: int
+        The y coordinate where to display the discard pile
+    height: int
+        The height of the discard pile for display
+    width: int
+        The width of the discard pile for display
+    max_discards: int
+        The maximum number of discards that can be made
+    pile_id: int
+        The unique id of the discard pil
+    '''
+    def __init__(self, x_pos: int, y_pos: int, pile_id: int, height=100, width=50, max_discards=2):
+        '''
+        Initializes the discard pile with a given x and y coordinate, height, width,
+        and maximum number of discards that can be made by the user
+
+        Parameters
+        ----------
+        x_pos: int
+            The x coordinate where to display the discard pile
+        y_pos: int
+            The y coordinate where to display the discard pile
+        height: int
+            The height of the discard pile for display
+        width: int
+            The width of the discard pile for display
+        max_discards: int
+            The maximum number of discards that the user can make
+        pile_id: int
+            The unique id of the discard pile
+        '''
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+        self.height = height
+        self.width = width
+        self.max_discards = max_discards
+        self.num_discards = 0
+        self.pile_id = pile_id
+
+    def add_tile(self, tile: Tile) -> None:
+        '''
+        Increases the number of discards that have been made
+
+        Note
+        ----
+        Validation to ensure that the number of discards is not beyound the
+        maximum size is not made here
+        '''
+        self.num_discards += 1
+
+    def is_full(self) -> bool:
+        '''
+        Retuns if the number of discards that have been made equals the max
+        number of discards
+
+        Return
+        ------
+        bool
+            True if the max number of discards equal the number of discards made
+        '''
+        return self.num_discards == self.max_discards
+
+    def clear_discards(self) -> None:
+        '''
+        Sets the number of discards made to zero
+        '''
+        self.num_discards = 0
+
+    def draw(self, screen: pygame.Surface) -> None:
+        '''
+        Handles displaying the discards pile and the number of discards to the screen.
+        The discards are represented by red rectangles and the available spaces for
+        discards are represented by rectangles outlines in white
+        '''
+        box_x = self.x_pos
+        box_y = self.y_pos
+        box_height = self.height / self.max_discards
+        box_width = self.width
+        color_fill = (255, 0, 0)
+        color_outline = (255, 255, 255)
+        for i in range(0, self.max_discards):
+            if i < self.num_discards:
+                pygame.draw.rect(screen, color_fill, (box_x, box_y, box_width, box_height))
+            else:
+                pygame.draw.rect(screen, color_outline, (box_x, box_y, box_width, box_height), 3)
+            box_y -= box_height
+
+    def __str__(self) -> str:
+        '''
+        String representation of the object with the name of the class and the number
+        of discards used out of the total
+        '''
+        return 'DiscardPile: ' + str(self.num_discards) + ' used out of ' + str(self.max_discards) + ' discards'
 
 
 class TileQueue:
@@ -529,105 +647,6 @@ class ScoreDisplay:
         return 'ScoreDisplay: ' + str(self.score)
 
 
-class DiscardPile:
-    '''
-    Represents discards made by the user. The actual Tiles discardsed are not kept
-    track of, only the number of discards
-
-    Attributes
-    ----------
-    x_pos: int
-        The x coordinate where to display the discard pile
-    y_pos: int
-        The y coordinate where to display the discard pile
-    height: int
-        The height of the discard pile for display
-    width: int
-        The width of the discard pile for display
-    max_discards: int
-        The maximum number of discards that can be made
-    '''
-    def __init__(self, x_pos: int, y_pos: int, height=100, width=50, max_discards=2):
-        '''
-        Initializes the discard pile with a given x and y coordinate, height, width,
-        and maximum number of discards that can be made by the user
-
-        Parameters
-        ----------
-        x_pos: int
-            The x coordinate where to display the discard pile
-        y_pos: int
-            The y coordinate where to display the discard pile
-        height: int
-            The height of the discard pile for display
-        width: int
-            The width of the discard pile for display
-        max_discards: int
-            The maximum number of discards that the user can make
-        '''
-        self.x_pos = x_pos
-        self.y_pos = y_pos
-        self.height = height
-        self.width = width
-        self.max_discards = max_discards
-        self.num_discards = 0
-
-    def add_discard(self) -> None:
-        '''
-        Increases the number of discards that have been made
-
-        Note
-        ----
-        Validation to ensure that the number of discards is not beyound the
-        maximum size is not made here
-        '''
-        self.num_discards += 1
-
-    def is_full(self) -> bool:
-        '''
-        Retuns if the number of discards that have been made equals the max
-        number of discards
-
-        Return
-        ------
-        bool
-            True if the max number of discards equal the number of discards made
-        '''
-        return self.num_discards == self.max_discards
-
-    def clear_discards(self) -> None:
-        '''
-        Sets the number of discards made to zero
-        '''
-        self.num_discards = 0
-
-    def draw(self, screen: pygame.Surface) -> None:
-        '''
-        Handles displaying the discards pile and the number of discards to the screen.
-        The discards are represented by red rectangles and the available spaces for
-        discards are represented by rectangles outlines in white
-        '''
-        box_x = self.x_pos
-        box_y = self.y_pos
-        box_height = self.height / self.max_discards
-        box_width = self.width
-        color_fill = (255, 0, 0)
-        color_outline = (255, 255, 255)
-        for i in range(0, self.max_discards):
-            if i < self.num_discards:
-                pygame.draw.rect(screen, color_fill, (box_x, box_y, box_width, box_height))
-            else:
-                pygame.draw.rect(screen, color_outline, (box_x, box_y, box_width, box_height), 3)
-            box_y -= box_height
-
-    def __str__(self) -> str:
-        '''
-        String representation of the object with the name of the class and the number
-        of discards used out of the total
-        '''
-        return 'DiscardPile: ' + str(self.num_discards) + ' used out of ' + str(self.max_discards) + ' discards'
-
-
 class InvalidMoveException(Exception):
     '''
     Generic exception used whenever an invald move is made
@@ -654,15 +673,12 @@ class Game:
     ----------
     size: `list` of int
         The size of the pygame screen as an array with width, height
-    piles: `dict` of Stack and DiscardPile
-        Dictionary that has keys associated with stacks and a discard pile.
-        Used for making moves
+    stacks: `list` of Stack
+        List of stacks that the user can add tiles onto
     tile_queue: TileQueue
         The tile queue that will store the next possible tiles to be used
     score_display: ScoreDisplay
         Handles the score and the display of the score to the user
-    discard_id: int
-        The key to the piles that relates to the DiscardPile
     '''
     def __init__(self, config_file_location: str):
         '''
@@ -687,13 +703,13 @@ class Game:
         Initalizes the stacks with the coordinates and maximum sizes from the
         configuration file
         '''
-        self.piles = dict()
+        self.stacks = []
         num_stacks = int(config['game_setup']['num_stacks'])
         max_size = int(config['game_setup']['max_stack_size'])
         stack_x, stack_y = self.get_pair(config['position']['stack_start'])
         distance = self.size[0] // num_stacks
         for i in range(0, num_stacks):
-            self.piles[i] = Stack(stack_x, stack_y, max_size)
+            self.stacks.append(Stack(stack_x, stack_y, max_size, i))
             stack_x += distance
 
     def init_tile_queue(self, config: ConfigParser) -> None:
@@ -718,8 +734,7 @@ class Game:
         file
         '''
         pile_x, pile_y = self.get_pair(config['position']['discard_pile'])
-        self.piles[len(self.piles)] = DiscardPile(pile_x, pile_y)
-        self.discard_id = len(self.piles) - 1
+        self.discard_pile = DiscardPile(pile_x, pile_y, len(self.stacks))
 
     def get_pair(self, raw_values: str) -> list:
         '''
@@ -741,7 +756,13 @@ class Game:
         pos_y = int(str_values[1])
         return (pos_x, pos_y)
 
-    def validate(self, pile_number: int) -> None:
+    def get(self, pile: Pile) -> Pile:
+        for stack in self.stacks:
+            if pile.pile_id == stack.pile_id:
+                return stack
+        return self.discard_pile
+
+    def validate(self, pile) -> None:
         '''
         Handles validating a move. A move is invalid if
         1) The pile number is not found
@@ -752,21 +773,17 @@ class Game:
 
         Parameters
         ----------
-        pile_number: id
-            The key for the piles dictionary where the next tile on the queue will
-            be moved to
+        pile: Pile
+            The pile to make the move on either a stack or a discard pile
         '''
-        # Check if the pile number is a valid pile id
-        if pile_number >= len(self.piles):
-            raise InvalidMoveException(str(pile_number) + ' not found in piles')
         # If the requested pile is the discard pile, check if the pile is full
-        if isinstance(self.piles[pile_number], DiscardPile):
-            if self.piles[pile_number].is_full():
+        if isinstance(pile, DiscardPile):
+            if self.discard_pile.is_full():
                 raise InvalidMoveException('Discard pile is full')
         # If the requested pile is a stack, check if the stack can accept another tile
         else:
             next_tile = self.tile_queue.peak(0)
-            if self.piles[pile_number].is_full() and not self.piles[pile_number].tiles[-1] == next_tile:
+            if pile.is_full() and not pile.tiles[-1] == next_tile:
                 raise InvalidMoveException('Stack full and next tile does not match top tile')
 
     def make_move(self, move) -> None:
@@ -780,18 +797,18 @@ class Game:
             Contains the information about the impact of the move and the target pile
             id
         '''
-        pile_id = move.pile_id
-        self.validate(pile_id)
+        pile = move.original_pile
+        self.validate(pile)
         next_tile = self.tile_queue.pull()
         # If adding to the discard
-        if pile_id == self.discard_id:
-            self.piles[pile_id].add_discard()
+        if isinstance(pile, DiscardPile):
+            self.discard_pile.add_tile(next_tile)
         # If adding to a stack
         else:
-            score_change = self.piles[pile_id].add_tile(next_tile)
+            score_change = pile.add_tile(next_tile)
             # 2048 achieved
-            if len(self.piles[pile_id]) == 0:
-                self.piles[self.discard_id].clear_discards()
+            if len(pile) == 0:
+                self.discard_pile.clear_discards()
             self.score_display.increase_score(score_change)
 
     def game_over(self) -> bool:
@@ -803,10 +820,10 @@ class Game:
         bool
             True if every pile including the discard pile is full
         '''
-        for pile_id in self.piles:
-            if not self.piles[pile_id].is_full():
+        for stack in self.stacks:
+            if not stack.is_full():
                 return False
-        return True
+        return self.discard_pile.is_full()
 
     def draw(self, screen: pygame.Surface, font: pygame.font.Font) -> None:
         '''
@@ -820,10 +837,11 @@ class Game:
             pygame Font to draw the score using
         '''
         screen.fill((0, 0, 0))
-        for pile_id in self.piles:
-            self.piles[pile_id].draw(screen)
+        for stack in self.stacks:
+            stack.draw(screen)
         self.tile_queue.draw(screen)
         self.score_display.draw(screen, font)
+        self.discard_pile.draw(screen)
         pygame.display.flip()
 
     def __str__(self) -> str:
