@@ -2,6 +2,7 @@ from game_objects import Game
 import os
 from pathlib import Path
 from users.genetic_bot import GeneticBot
+from users.basic_bot import BasicBot
 from users.human import Human
 
 
@@ -10,7 +11,7 @@ def main():
     config_path = str(current_dir / 'resources' / 'config' / 'basic_ui.ini')
     game = Game(config_path)
     dna = {
-        'merges_weight': 0,
+        'merges_weight': 20,
         'height_largest_weight': 0,
         'height_lowest_weight': 0,
         'height_average_weight': 0,
@@ -19,6 +20,7 @@ def main():
     }
     user = GeneticBot(config_path, game, dna_init=dna)
     # user = Human(config_path, game)
+    # user = BasicBot(config_path, game)
     user.run()
 
 
