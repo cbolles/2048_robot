@@ -786,18 +786,16 @@ class Game:
             if pile.is_full() and not pile.tiles[-1] == next_tile:
                 raise InvalidMoveException('Stack full and next tile does not match top tile')
 
-    def make_move(self, move) -> None:
+    def make_move(self, pile) -> None:
         '''
         Validate the move request then move the Tile from the top of the tile queue
         to the target pile. Handles if 2048 is achieved including clearing the discards
 
         Parameters
         ----------
-        move: Move
-            Contains the information about the impact of the move and the target pile
-            id
+        pile: Pile
+            The target pile the move will be made to.
         '''
-        pile = move.original_pile
         self.validate(pile)
         next_tile = self.tile_queue.pull()
         # If adding to the discard

@@ -6,18 +6,20 @@ from game_objects import Stack
 
 
 class Move:
-    def __init__(self, game, pile_id):
+    def __init__(self, game, pile):
         self.initialize_values()
         self.game = deepcopy(game)
-        self.pile_id = pile_id
-        self.target_pile = self.game.piles[self.pile_id]
-        self.stack_move = isinstance(self.target_pile, Stack)
+        self.original_pile = pile
+        self.pile = deepcopy(pile)
+        self.stack_move = isinstance(self.pile, Stack)
         original_height = 0
         if self.stack_move:
-            original_height = len(self.target_pile)
-        self.game.make_move(self)
+            original_height = len(self.pile)
+        self.game.make_move(self.pile)
         if self.stack_move:
             self.set_num_merges(original_height)
+        else:
+            self.num_merges = 0
         self.set_num_discontinuities()
         self.set_num_tiles()
         self.set_score_change(game)
@@ -38,23 +40,21 @@ class Move:
         self.evaluation = 0
 
     def set_num_merges(self, original_height):
-        new_height = len(self.target_pile)
+        new_height = len(self.pile)
         if original_height != 0 and new_height == 0:
             self.num_merges = original_height
         else:
             self.num_merges = original_height + 1 - new_height
 
     def set_num_discontinuities(self):
-        for pile in self.game.piles.values():
-            if isinstance(pile, Stack):
-                for i in range(0, len(pile) - 1):
-                    if pile.tiles[i].value < pile.tiles[i + 1].value:
-                        self.num_discontinuities += 1
+        for stack in self.game.stacks:
+            for i in range(0, len(stack) - 1):
+                if stack.tiles[i].value < stack.tiles[i + 1].value:
+                    self.num_discontinuities += 1
 
     def set_num_tiles(self):
-        for pile in self.game.piles.values():
-            if isinstance(pile, Stack):
-                self.num_tiles += len(pile)
+        for stack in self.game.stacks:
+            self.num_tiles += len(stack)
 
     def set_score_change(self, original_game):
         new_score = self.game.score_display.score
@@ -63,27 +63,26 @@ class Move:
 
     def set_largest_height(self):
         largest_height = 0
-        for pile in self.game.piles.values():
-            if isinstance(pile, Stack) and len(pile) > largest_height:
-                largest_height = len(pile)
+        for stack in self.game.stacks:
+            if len(stack) > largest_height:
+                largest_height = len(stack)
         self.largest_height = largest_height
 
     def set_lowest_height(self):
-        lowest_height = self.game.piles[1].max_size
-        for pile in self.game.piles.values():
-            if isinstance(pile, Stack) and len(pile) < lowest_height:
-                lowest_height = len(pile)
+        lowest_height = self.game.stacks[1].max_size
+        for stack in self.game.stacks:
+            if len(stack) < lowest_height:
+                lowest_height = len(stack)
         self.lowest_height = lowest_height
 
     def set_average_height(self):
         total_height = 0
-        for pile in self.game.piles.values():
-            if isinstance(pile, Stack):
-                total_height += len(pile)
-        self.average_height = total_height / (len(self.game.piles) - 1)
+        for stack in self.game.stacks:
+            total_height += len(stack)
+        self.average_height = total_height / (len(self.game.stacks) - 1)
 
     def set_num_discards(self):
-        self.num_discards = self.game.piles[self.game.discard_id].num_discards
+        self.num_discards = self.game.discard_pile.num_discards
 
 
 class User(ABC):
@@ -121,8 +120,10 @@ class User(ABC):
         pos_y = int(str_values[1])
         return (pos_x, pos_y)
 
-    def create_move(self, pile_id):
-        return Move(self.game, pile_id)
+    def create_move(self, pile):
+        if pile is None:
+            return None
+        return Move(self.game, pile)
 
     @abstractmethod
     def get_move(self, events):
@@ -132,15 +133,15 @@ class User(ABC):
         running = True
         self.game.draw(self.screen, self.font)
         while running:
-            running = not self.game.game_over()
             events = pygame.event.get()
             for event in events:
                 if event.type == pygame.QUIT:
                     running = False
             move = self.get_move(events)
             if move is not None:
-                self.game.make_move(move)
+                self.game.make_move(move.original_pile)
                 self.game.draw(self.screen, self.font)
+            running = not self.game.game_over()
         self.clock.tick(self.framerate)
         print('Game Over')
         print(self.game.score_display.score)
