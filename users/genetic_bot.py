@@ -1,6 +1,5 @@
 from random import random
 from users.utils import User, Move
-from copy import deepcopy
 from game_objects import Stack
 
 
@@ -47,15 +46,18 @@ class GeneticBot(User):
     def get_possible_moves(self):
         possible_moves = []
         next_tile = self.game.tile_queue.peak(0)
-        for i in range(0, len(self.game.piles)):
-            pile = self.game.piles[i]
-            if not pile.is_full() or (isinstance(pile, Stack) and pile.tiles[-1].value == next_tile.value):
-                possible_moves.append(self.create_move(i))
+        for stack in self.game.stacks:
+            if not stack.is_full() or stack.tiles[-1].value == next_tile.value:
+                possible_moves.append(self.create_move(stack))
+        if not self.game.discard_pile.is_full():
+            possible_moves.append(self.create_move(self.game.discard_pile))
         for move in possible_moves:
             move.evaluation = self.dna.evaluate(move)
+            print(move.num_discontinuities)
+        print()
         return possible_moves
 
-    def get_move(self, event):
+    def get_move(self, events):
         moves = self.get_possible_moves()
         moves = sorted(moves, key=lambda move: move.evaluation)
         if len(moves) == 0:

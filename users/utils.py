@@ -10,11 +10,11 @@ class Move:
         self.initialize_values()
         self.game = deepcopy(game)
         self.original_pile = pile
-        self.pile = deepcopy(pile)
+        self.pile = self.game.get_pile(pile.pile_id)
         self.stack_move = isinstance(self.pile, Stack)
         original_height = 0
         if self.stack_move:
-            original_height = len(self.pile)
+            original_height = len(pile)
         self.game.make_move(self.pile)
         if self.stack_move:
             self.set_num_merges(original_height)

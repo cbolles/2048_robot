@@ -842,6 +842,14 @@ class Game:
         self.discard_pile.draw(screen)
         pygame.display.flip()
 
+    def get_pile(self, pile_id):
+        for stack in self.stacks:
+            if stack.pile_id == pile_id:
+                return stack
+        if self.discard_pile.pile_id == pile_id:
+            return self.discard_pile
+        return None
+
     def __str__(self) -> str:
         '''
         String representation of the game
