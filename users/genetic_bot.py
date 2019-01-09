@@ -12,16 +12,18 @@ class DNA:
             self.height_average_weight = params['height_average_weight']
             self.num_discontinuities_weight = params['num_discontinuities_weight']
             self.num_discards_weight = params['num_discards_weight']
+            self.fill_ratio_weight = params['fill_ratio_weight']
         else:
             self.random_init()
 
     def random_init(self):
-        self.merges_weight = random()
-        self.height_largest_weight = random()
-        self.height_lowest_weight = random()
-        self.height_average_weight = random()
-        self.num_discontinuities_weight = random()
-        self.num_discards_weight = random()
+        self.merges_weight = random() * 2 - 1
+        self.height_largest_weight = random() * 2 - 1
+        self.height_lowest_weight = random() * 2 - 1
+        self.height_average_weight = random() * 2 - 1
+        self.num_discontinuities_weight = random() * 2 - 1
+        self.num_discards_weight = random() * 2 - 1
+        self.fill_ratio_weight = random() * 2 - 1
 
     def evaluate(self, move):
         score = 0
@@ -53,8 +55,6 @@ class GeneticBot(User):
             possible_moves.append(self.create_move(self.game.discard_pile))
         for move in possible_moves:
             move.evaluation = self.dna.evaluate(move)
-            print(move.num_discontinuities)
-        print()
         return possible_moves
 
     def get_move(self, events):
@@ -66,4 +66,4 @@ class GeneticBot(User):
 
     def evaluate_fitness(self):
         self.run()
-        self.fitness = self.game.score
+        self.fitness = self.game.score_display.score
