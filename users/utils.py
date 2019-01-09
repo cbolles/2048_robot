@@ -27,6 +27,7 @@ class Move:
         self.set_lowest_height()
         self.set_average_height()
         self.set_num_discards()
+        self.set_fill_ratio()
 
     def initialize_values(self):
         self.num_merges = 0
@@ -37,6 +38,7 @@ class Move:
         self.lowest_height = 0
         self.average_height = 0
         self.num_discards = 0
+        self.fill_ratio = 0
         self.evaluation = 0
 
     def set_num_merges(self, original_height):
@@ -83,6 +85,10 @@ class Move:
 
     def set_num_discards(self):
         self.num_discards = self.game.discard_pile.num_discards
+
+    def set_fill_ratio(self):
+        max_tiles = len(self.game.stacks) * self.game.stacks[0].max_size + self.game.discard_pile.max_discards
+        self.fill_ratio = self.num_tiles / max_tiles
 
 
 class User(ABC):
@@ -131,7 +137,7 @@ class User(ABC):
 
     def run(self):
         running = True
-        self.game.draw(self.screen, self.font)
+        # self.game.draw(self.screen, self.font)
         while running:
             events = pygame.event.get()
             for event in events:
@@ -140,8 +146,8 @@ class User(ABC):
             move = self.get_move(events)
             if move is not None:
                 self.game.make_move(move.original_pile)
-                self.game.draw(self.screen, self.font)
+                # self.game.draw(self.screen, self.font)
             running = not self.game.game_over()
-        self.clock.tick(self.framerate)
-        print('Game Over')
-        print(self.game.score_display.score)
+        # self.clock.tick(self.framerate)
+        # print('Game Over')
+        # print(self.game.score_display.score)

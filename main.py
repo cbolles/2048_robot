@@ -4,6 +4,7 @@ from pathlib import Path
 from users.genetic_bot import GeneticBot
 from users.basic_bot import BasicBot
 from users.human import Human
+from ai_training.genetic_training import training
 
 
 def main():
@@ -18,10 +19,11 @@ def main():
         'num_discontinuities_weight': -5,
         'num_discards_weight': 0
     }
-    user = GeneticBot(config_path, game, dna_init=dna)
+    # user = GeneticBot(config_path, game, dna_init=dna)
     # user = Human(config_path, game)
     # user = BasicBot(config_path, game)
-    user.run()
+    # user.run()
+    training(None)
 
 
 if __name__ == '__main__':
