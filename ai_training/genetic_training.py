@@ -1,5 +1,4 @@
 from users.genetic_bot import GeneticBot
-from game_objects import Game
 from random import randint, randrange
 from configparser import ConfigParser
 import os
@@ -19,17 +18,16 @@ class GeneticConfig:
 
 
 class Generation:
-    def __init__(self, game_config_path, genetic_config, number, parents=None):
+    def __init__(self, game_config_path, genetic_config, number, params, parents=None):
         self.game_config_path = game_config_path
         self.genetic_config = genetic_config
         self.bots = []
         self.number = number
-        self.initialize_population(parents)
+        self.initialize_population(parents, params)
 
-    def initialize_original_population(self):
+    def initialize_original_population(self, params):
         for i in range(0, self.genetic_config.population_size):
-            game = Game(self.game_config_path)
-            self.bots.append(GeneticBot(self.game_config_path, game))
+            self.bots.append(GeneticBot(self.game_config_path, params))
 
     def get_parent(self, parents):
         if len(parents) == 1:
@@ -40,7 +38,7 @@ class Generation:
             return self.get_parent(parents[split_point:])
         return self.get_parent(parents[:split_point])
 
-    def produce_offspring(self, parent_one, parent_two):
+    def produce_offspring(self, parent_one, parent_two, params):
         dna_params = dict()
         parent_one_dna = parent_one.dna.__dict__
         parent_two_dna = parent_two.dna.__dict__
@@ -58,22 +56,22 @@ class Generation:
             if prob <= self.genetic_config.mutation_rate:
                 mutation_change = self.genetic_config.mutation_step * randrange(-1, 2, 2)
                 dna_params[key] = dna_params[key] + mutation_change
-        return GeneticBot(self.game_config_path, Game(self.game_config_path), dna_init=dna_params)
+        return GeneticBot(self.game_config_path, params)
 
-    def produce_generation(self, parents):
+    def produce_generation(self, parents, params):
         parents = sorted(parents, key=lambda parent: parent.fitness)
         while len(self.bots) < self.genetic_config.population_size:
             parent_one = self.get_parent(parents)
             parent_two = self.get_parent(parents)
             while parent_two.fitness == parent_one.fitness:
                 parent_two = self.get_parent(parents)
-            self.bots.append(self.produce_offspring(parent_one, parent_two))
+            self.bots.append(self.produce_offspring(parent_one, parent_two, params))
 
-    def initialize_population(self, parents):
+    def initialize_population(self, parents, params):
         if parents is None:
-            self.initialize_original_population()
+            self.initialize_original_population(params)
         else:
-            self.produce_generation(parents)
+            self.produce_generation(parents, params)
 
     def evaluate_fitness(self):
         for bot in self.bots:
@@ -94,15 +92,14 @@ def training(params: dict) -> None:
     # Read in genetic configuration
     current_dir = Path(os.path.dirname(os.path.abspath(__file__)))
     genetic_config_path = str(current_dir / '..' / 'resources' / 'config' / 'genetic_training.ini')
-    print(genetic_config_path)
     genetic_config = GeneticConfig(genetic_config_path)
 
     # Read in game configuration
-    game_config_path = str(current_dir / '..' / 'resources' / 'config' / 'basic_ui.ini')
+    game_config_path = str(current_dir / '..' / 'resources' / 'config' / 'base_config.ini')
 
     # Establish first generation
     gen_number = 0
-    population = Generation(game_config_path, genetic_config, gen_number)
+    population = Generation(game_config_path, genetic_config, gen_number, params)
     population.evaluate_fitness()
 
     display_gen_details(population)
@@ -110,6 +107,6 @@ def training(params: dict) -> None:
     # Training loop
     while population.get_most_fit().fitness < genetic_config.target_score:
         gen_number += 1
-        population = Generation(game_config_path, genetic_config, gen_number, parents=population.bots)
+        population = Generation(game_config_path, genetic_config, gen_number, params, parents=population.bots)
         population.evaluate_fitness()
         display_gen_details(population)
