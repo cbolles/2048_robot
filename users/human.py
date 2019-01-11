@@ -1,4 +1,3 @@
-import pygame
 from users.base_user import User
 import pygame
 
@@ -11,8 +10,7 @@ class Human(User):
         super(Human, self).__init__(config_path, params, class_name)
         self.running = True
 
-    def get_target_pile(self):
-        events = self.game_controller.get_events()
+    def get_target_pile(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 target_num = int(pygame.key.name(event.key))
