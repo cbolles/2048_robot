@@ -128,7 +128,9 @@ class Move:
 
 class GeneticBot(User):
     def __init__(self, config_path, params):
-        dna_init = params['dna_init']
+        dna_init = dict()
+        if 'dna_init' in params:
+            dna_init = params['dna_init']
         class_name = type(self).__name__
         super(GeneticBot, self).__init__(config_path, params, class_name)
         self.dna = DNA(dna_init)
