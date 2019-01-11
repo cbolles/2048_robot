@@ -48,37 +48,37 @@ class GameView:
         return tile_views
 
     def __init__(self, view_config_path):
-        self.config = ConfigParser()
-        self.config.read(view_config_path)
+        config = ConfigParser()
+        config.read(view_config_path)
         pygame.init()
         pygame.font.init()
-        self.init_font()
-        self.init_screen()
-        self.init_tiles()
-        self.init_stack_positions()
-        self.discard_pile_pos = GameView.parse_pair(self.config['view']['discard_pile_pos'])
-        self.discard_pile_dim = GameView.parse_pair(self.config['view']['discard_pile_dim'])
-        self.tile_queue_pos = GameView.parse_pair(self.config['view']['tile_queue_pos'])
-        self.score_pos = GameView.parse_pair(self.config['view']['score_display_pos'])
+        self.init_font(config)
+        self.init_screen(config)
+        self.init_tiles(config)
+        self.init_stack_positions(config)
+        self.discard_pile_pos = GameView.parse_pair(config['view']['discard_pile_pos'])
+        self.discard_pile_dim = GameView.parse_pair(config['view']['discard_pile_dim'])
+        self.tile_queue_pos = GameView.parse_pair(config['view']['tile_queue_pos'])
+        self.score_pos = GameView.parse_pair(config['view']['score_display_pos'])
 
-    def init_font(self):
-        font_name = self.config['view']['font_name']
-        font_size = int(self.config['view']['font_size'])
+    def init_font(self, config):
+        font_name = config['view']['font_name']
+        font_size = int(config['view']['font_size'])
         self.font = pygame.font.SysFont(font_name, font_size)
 
-    def init_screen(self):
-        self.screen_size = GameView.parse_pair(self.config['view']['screen_dim'])
+    def init_screen(self, config):
+        self.screen_size = GameView.parse_pair(config['view']['screen_dim'])
         self.screen = pygame.display.set_mode(self.screen_size)
 
-    def init_tiles(self):
-        tile_dimensions = GameView.parse_pair(self.config['view']['tile_dim'])
+    def init_tiles(self, config):
+        tile_dimensions = GameView.parse_pair(config['view']['tile_dim'])
         self.tile_views = GameView.generate_tile_views(tile_dimensions)
 
-    def init_stack_positions(self):
+    def init_stack_positions(self, config):
         self.stack_positions = []
-        num_stacks = int(self.config['model']['num_stacks'])
+        num_stacks = int(config['model']['num_stacks'])
         stack_spacing = self.screen_size[0] // num_stacks
-        start_pos = GameView.parse_pair(self.config['view']['stack_start_pos'])
+        start_pos = GameView.parse_pair(config['view']['stack_start_pos'])
         for i in range(0, num_stacks):
             stack_pos = (start_pos[0] + stack_spacing * i, start_pos[1])
             self.stack_positions.append(stack_pos)

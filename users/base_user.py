@@ -41,7 +41,10 @@ class User(ABC):
         running = True
         self.user_stats.start()
         while running:
-            target_pile = self.get_target_pile(self.game_controller.get_events())
+            events = None
+            if self.game_controller.display_game:
+                events = self.game_controller.get_events()
+            target_pile = self.get_target_pile(events)
             if target_pile is not None:
                 self.game_controller.make_move(target_pile)
                 self.user_stats.moves_made += 1
