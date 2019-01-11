@@ -28,7 +28,10 @@ class Stack(Pile):
 
     def add_tile(self, tile_value):
         self.tile_values.append(tile_value)
-        return self.merge(1)
+        score = self.merge(1)
+        if self.tile_values[0] == 2048:
+            self.tiles = []
+        return score
 
     def is_full(self):
         return len(self.tile_values) == self.max_size
