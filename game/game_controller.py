@@ -17,11 +17,12 @@ class GameController:
     def __init__(self, game_config_path, params):
         self.game_config_path = game_config_path
         self.display_game = True
+        self.game_model = GameModel(game_config_path)
         if 'game_display' in params:
             self.display_game = params['game_display']
         if self.display_game:
             self.game_view = GameView(game_config_path)
-        self.game_model = GameModel(game_config_path)
+            self.game_view.draw(self.game_model)
 
     def validate_move(self, pile):
         if isinstance(pile, DiscardPile):
