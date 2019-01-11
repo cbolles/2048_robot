@@ -136,6 +136,7 @@ class GeneticBot(User):
         self.dna = DNA(dna_init)
         self.fitness = 0
         self.game_model = self.game_controller.game_model
+        self.id = random()
 
     def create_move(self, pile):
         if pile is None:

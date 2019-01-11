@@ -63,7 +63,7 @@ class Generation:
         while len(self.bots) < self.genetic_config.population_size:
             parent_one = self.get_parent(parents)
             parent_two = self.get_parent(parents)
-            while parent_two.fitness == parent_one.fitness:
+            while parent_two.id == parent_one.id:
                 parent_two = self.get_parent(parents)
             self.bots.append(self.produce_offspring(parent_one, parent_two, params))
 
