@@ -30,7 +30,7 @@ class User(ABC):
         self.user_stats = UserStats(user_type)
 
     @abstractmethod
-    def get_target_pile(self):
+    def get_target_pile(self, events):
         pass
 
     @abstractmethod
@@ -41,7 +41,7 @@ class User(ABC):
         running = True
         self.user_stats.start()
         while running:
-            target_pile = self.get_target_pile()
+            target_pile = self.get_target_pile(self.game_controller.get_events())
             if target_pile is not None:
                 self.game_controller.make_move(target_pile)
                 self.user_stats.moves_made += 1
