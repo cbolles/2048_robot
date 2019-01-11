@@ -47,4 +47,5 @@ class User(ABC):
                 self.user_stats.moves_made += 1
             running = self.is_running()
             sleep(self.refresh_time)
+        self.user_stats.user_score = self.game_controller.game_model.score
         self.user_stats.finish()
