@@ -22,12 +22,13 @@ def main():
     }
     params['game_display'] = True
     # params['dna_init'] = dna
-    # user = BasicBot(config_path, params)
+    user = BasicBot(config_path, params)
     # user = Human(config_path)
     # user = GeneticBot(config_path, params)
-    # user.run()
+    user.run()
     # print(user.user_stats.user_score)
-    training(params)
+    # training(params)
+
 
 if __name__ == '__main__':
     main()

@@ -68,7 +68,7 @@ class DiscardPile(Pile):
         self.num_discards = 0
 
     def __str__(self):
-        return 'DiscardPile: ' + str(self.num_discards) + 'used out of ' + str(self.max_discards)
+        return 'DiscardPile: ' + str(self.num_discards) + ' used out of ' + str(self.max_discards)
 
 
 class TileQueue:
