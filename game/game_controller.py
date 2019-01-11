@@ -8,6 +8,11 @@ class InvalidMoveException(Exception):
         Exception.__init__(self, message)
 
 
+class DisplayNotInitializedException(Exception):
+    def __init__(self, message):
+        Exception.__init__(self, message)
+
+
 class GameController:
     def __init__(self, game_config_path, params):
         self.game_config_path = game_config_path
@@ -31,3 +36,13 @@ class GameController:
         self.validate_move(pile)
         target_pile = self.game_model.get_pile(pile.pile_id)
         self.game_model.make_move(target_pile)
+        if self.display_game:
+            self.game_view.draw(self.game_model)
+
+    def get_events(self):
+        if self.display_game:
+            return self.game_view.get_events()
+        raise DisplayNotInitializedException('Cannot got pygame events')
+
+    def is_running(self):
+        return self.game_model.game_over()
