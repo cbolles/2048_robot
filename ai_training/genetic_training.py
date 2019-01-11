@@ -3,6 +3,7 @@ from random import randint, randrange
 from configparser import ConfigParser
 import os
 from pathlib import Path
+from copy import deepcopy
 
 
 class GeneticConfig:
@@ -39,6 +40,7 @@ class Generation:
         return self.get_parent(parents[:split_point])
 
     def produce_offspring(self, parent_one, parent_two, params):
+        genetic_params = deepcopy(params)
         dna_params = dict()
         parent_one_dna = parent_one.dna.__dict__
         parent_two_dna = parent_two.dna.__dict__
@@ -53,10 +55,11 @@ class Generation:
         # Mutate
         for key in dna_params:
             prob = randint(0, 100)
-            if prob <= self.genetic_config.mutation_rate:
+            if prob <= self.genetic_config.mutation_rate * 100:
                 mutation_change = self.genetic_config.mutation_step * randrange(-1, 2, 2)
                 dna_params[key] = dna_params[key] + mutation_change
-        return GeneticBot(self.game_config_path, params)
+        genetic_params['dna_init'] = dna_params
+        return GeneticBot(self.game_config_path, genetic_params)
 
     def produce_generation(self, parents, params):
         parents = sorted(parents, key=lambda parent: parent.fitness)

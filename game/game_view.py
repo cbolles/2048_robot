@@ -39,7 +39,7 @@ class GameView:
 
     @staticmethod
     def generate_tile_views(tile_dimensions):
-        tile_values = [pow(2, i) for i in range(1, 11)]
+        tile_values = [pow(2, i) for i in range(1, 12)]
         tile_views = dict()
         height = tile_dimensions[1]
         width = tile_dimensions[0]
