@@ -93,16 +93,16 @@ class TileQueue:
 
 class GameModel:
     def __init__(self, game_config_path):
-        self.config = ConfigParser()
-        self.config.read(game_config_path)
-        self.init_stacks()
+        config = ConfigParser()
+        config.read(game_config_path)
+        self.init_stacks(config)
         self.discard_pile = DiscardPile(len(self.stacks))
         self.tile_queue = TileQueue()
         self.score = 0
 
-    def init_stacks(self):
-        num_stacks = int(self.config['model']['num_stacks'])
-        max_stack_size = int(self.config['model']['max_stack_size'])
+    def init_stacks(self, config):
+        num_stacks = int(config['model']['num_stacks'])
+        max_stack_size = int(config['model']['max_stack_size'])
         self.stacks = [Stack(max_stack_size, i) for i in range(0, num_stacks)]
 
     def get_pile(self, pile_id):
