@@ -1,29 +1,15 @@
 from game_objects import Game
 import os
 from pathlib import Path
-from users.genetic_bot import GeneticBot
-from users.basic_bot import BasicBot
 from users.human import Human
-from ai_training.genetic_training import training
 
 
 def main():
     current_dir = Path(os.path.dirname(os.path.abspath(__file__)))
-    config_path = str(current_dir / 'resources' / 'config' / 'basic_ui.ini')
-    game = Game(config_path)
-    dna = {
-        'merges_weight': 20,
-        'height_largest_weight': 0,
-        'height_lowest_weight': 0,
-        'height_average_weight': 0,
-        'num_discontinuities_weight': -5,
-        'num_discards_weight': 0
-    }
-    # user = GeneticBot(config_path, game, dna_init=dna)
-    # user = Human(config_path, game)
-    # user = BasicBot(config_path, game)
-    # user.run()
-    training(None)
+    config_path = str(current_dir / 'resources' / 'config' / 'base_config.ini')
+    print(config_path)
+    user = Human(config_path)
+    user.run()
 
 
 if __name__ == '__main__':

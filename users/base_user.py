@@ -22,12 +22,11 @@ class UserStats:
 
 
 class User(ABC):
-    def __init__(self, params, user_type):
-        game_config_path = params['game_config_path']
+    def __init__(self, config_path, params, user_type):
         config = ConfigParser()
-        config.read(game_config_path)
-        self.refresh_rate = int(config['user']['refresh_rate'])
-        self.game_controller = GameController(game_config_path, dict())
+        config.read(config_path)
+        self.refresh_time = float(config['user']['refresh_time'])
+        self.game_controller = GameController(config_path, params)
         self.user_stats = UserStats(user_type)
 
     @abstractmethod
@@ -47,5 +46,5 @@ class User(ABC):
                 self.game_controller.make_move(target_pile)
                 self.user_stats.moves_made += 1
             running = self.is_running()
-            sleep(self.refresh_rate)
+            sleep(self.refresh_time)
         self.user_stats.finish()
