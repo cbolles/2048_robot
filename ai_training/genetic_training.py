@@ -1,5 +1,4 @@
 from users.genetic_bot import GeneticBot
-from game_objects import Game
 from random import randint, randrange
 from configparser import ConfigParser
 import os

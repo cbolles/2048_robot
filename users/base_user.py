@@ -45,6 +45,7 @@ class User(ABC):
             if self.game_controller.display_game:
                 events = self.game_controller.get_events()
             target_pile = self.get_target_pile(events)
+            print(target_pile)
             if target_pile is not None:
                 self.game_controller.make_move(target_pile)
                 self.user_stats.moves_made += 1

@@ -1,4 +1,3 @@
-from game_objects import Game
 import os
 from pathlib import Path
 from users.basic_bot import BasicBot
@@ -20,7 +19,7 @@ def main():
         'num_discards_weight': 0,
         'fill_ratio_weight': 5
     }
-    params['game_display'] = False
+    params['game_display'] = True
     # params['dna_init'] = dna
     # user = BasicBot(config_path, params)
     # user = Human(config_path)
