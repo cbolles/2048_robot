@@ -16,8 +16,9 @@ class GameModel:
     Representation of the game at a given step. Handles storing the state of
     the game and also provides the functionality for updating the state
     """
-    def __init__(self, tiles: List[List[int]]):
+    def __init__(self, tiles: List[List[int]], score: int = 0):
         self.tiles = tiles
+        self.score = score
 
     def game_over(self) -> bool:
         """
@@ -58,6 +59,8 @@ class GameModel:
         After the move takes place, a new tile is added to the board.
         """
         new_model = GameModel(copy.deepcopy(self.tiles))
+        new_model.score = self.score
+
         if direction == Direction.UP:
             new_model.move_up()
         elif direction == Direction.DOWN:
@@ -89,6 +92,8 @@ class GameModel:
                 if x > 0 and self.tiles[x - 1][y] == self.tiles[x][y]:
                     self.tiles[x - 1][y] *= 2
                     self.tiles[x][y] = 0
+                    self.score += self.tiles[x - 1][y]
+
 
     def move_down(self):
         """
@@ -109,6 +114,7 @@ class GameModel:
                 if x < 3 and self.tiles[x + 1][y] == self.tiles[x][y]:
                     self.tiles[x + 1][y] *= 2
                     self.tiles[x][y] = 0
+                    self.score += self.tiles[x + 1][y]
 
     def move_left(self):
         """
@@ -129,6 +135,7 @@ class GameModel:
                 if y > 0 and self.tiles[x][y - 1] == self.tiles[x][y]:
                     self.tiles[x][y - 1] *= 2
                     self.tiles[x][y] = 0
+                    self.score += self.tiles[x][y - 1]
 
     def move_right(self):
         """
@@ -149,6 +156,7 @@ class GameModel:
                 if y < 3 and self.tiles[x][y + 1] == self.tiles[x][y]:
                     self.tiles[x][y + 1] *= 2
                     self.tiles[x][y] = 0
+                    self.score += self.tiles[x][y + 1]
 
     def __repr__(self):
         return str(self.tiles)
