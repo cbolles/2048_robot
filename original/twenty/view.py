@@ -1,5 +1,5 @@
 import pygame
-
+from twenty.model import GameModel
 
 class TileView:
     """
@@ -23,14 +23,15 @@ class GameView:
     Implements the view logic for the 2048 game. This has the ability to take
     in a board and produce the cooresponding view of the tiles.
     """
-    def __init__(self, screen):
+    def __init__(self, screen, board: GameModel):
         self.screen = screen
-        self.tiles = [
-            [0, 0, 0, 2],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [32, 0, 0, 0]
-        ]
+        self.board = board
+
+    def update(self, board: GameModel):
+        """
+        Update the view to display the new board.
+        """
+        self.board = board
 
     def draw(self):
         """
