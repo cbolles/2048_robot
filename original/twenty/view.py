@@ -43,7 +43,7 @@ class GameView:
         # Print all of the numbers
         for x in range(4):
             for y in range(4):
-                TileView(self.screen, self.tiles[x][y]).draw(x * 100, y * 100)
+                TileView(self.screen, self.board.tiles[x][y]).draw(x * 100, y * 100)
 
         pygame.display.update()
 

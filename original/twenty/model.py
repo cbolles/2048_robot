@@ -28,7 +28,7 @@ class GameModel:
                     return False
         return True
 
-    def move(self, direction: Direction) -> GameModel:
+    def move(self, direction: Direction):
         """
         Make a move in the given direction, returning a new GameModel
         """
@@ -122,3 +122,6 @@ class GameModel:
                 if y < 3 and self.tiles[x][y + 1] == self.tiles[x][y]:
                     self.tiles[x][y + 1] *= 2
                     self.tiles[x][y] = 0
+
+    def __repr__(self):
+        return str(self.tiles)

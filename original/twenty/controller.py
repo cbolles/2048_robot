@@ -8,7 +8,11 @@ from typing import List
 class GameController:
     def __init__(self, initial_state: List[List[int]], user: User):
         self.model = GameModel(initial_state)
-        self.view = GameView(self.model)
+
+        screen = pygame.display.set_mode((400, 400))
+        pygame.init()
+        self.view = GameView(screen, self.model)
+
         self.user = user
 
     def run(self):
@@ -17,7 +21,8 @@ class GameController:
         """
         while not self.model.game_over():
             self.view.draw()
-            direction = self.user.get_direction()
+            direction = self.user.move()
             self.model = self.model.move(direction)
+            self.view.update(self.model)
 
         print('Game Over')
