@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import List
+from typing import List, Tuple
 import copy
+import random
 
 
 class Direction(Enum):
@@ -28,9 +29,33 @@ class GameModel:
                     return False
         return True
 
+    def get_empty_positions(self) -> List[Tuple[int, int]]:
+        """
+        Return a list of (x, y) positions that are empty.
+        """
+        empty_positions = []
+        for x in range(4):
+            for y in range(4):
+                if self.tiles[x][y] == 0:
+                    empty_positions.append((x, y))
+        return empty_positions
+
+    def add_tile(self):
+        """
+        Randomly add a tile to the board. 90% chance of a 2, 10% chance of a 4.
+        The tile is places randomly in a position that is currently empty.
+        """
+        empty_positions = self.get_empty_positions()
+        if len(empty_positions) == 0:
+            throw("No empty positions")
+
+        x, y = random.choice(empty_positions)
+        self.tiles[x][y] = 2 if random.random() < 0.9 else 4
+
     def move(self, direction: Direction):
         """
-        Make a move in the given direction, returning a new GameModel
+        Make a move in the given direction, returning a new GameModel.
+        After the move takes place, a new tile is added to the board.
         """
         new_model = GameModel(copy.deepcopy(self.tiles))
         if direction == Direction.UP:
@@ -41,6 +66,8 @@ class GameModel:
             new_model.move_left()
         elif direction == Direction.RIGHT:
             new_model.move_right()
+
+        new_model.add_tile()
         return new_model
 
     def move_up(self):
