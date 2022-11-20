@@ -14,7 +14,8 @@ class User(ABC):
 class HumanUser(User):
     def move(self) -> Direction:
         """
-        Get the next move from the user.
+        Get the next move from the user. This user works based on the
+        arrow keys.
         """
         while True:
             for event in pygame.event.get():
