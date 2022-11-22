@@ -49,7 +49,7 @@ class GameModel:
         """
         empty_positions = self.get_empty_positions()
         if len(empty_positions) == 0:
-            throw("No empty positions")
+            throw("No empt<tf_agents.networks.q_network.QNetwork object at 0x7feb69ee40d0>: Inconsistent dtypes or shapes between `inputs` and `input_tensor_spec`y positions")
 
         x, y = random.choice(empty_positions)
         self.tiles[x][y] = 2 if random.random() < 0.9 else 4

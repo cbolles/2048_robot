@@ -11,7 +11,7 @@ from tf_agents.policies import py_tf_policy
 from tf_agents.policies.policy_saver import PolicySaver
 import tf_agents.trajectories.time_step as ts
 from tf_agents.environments import tf_py_environment
-from twenty.model import GameModel
+from twenty.model import GameModel, Direction
 import copy
 import numpy as np
 
@@ -56,7 +56,8 @@ class GameEnvironment(PyEnvironment):
             return self.reset()
 
         # Perform the action
-        self.game.move(action)
+        self.game = self.game.move(Direction(action))
+        self._state = self.game.tiles
 
         # Check if the game is over
         if self.game.game_over():
@@ -100,3 +101,11 @@ def train():
     print('Reward Spec:')
     print(env.reward_spec())
 
+    time_step = env.reset()
+    print('Time step:')
+    print(time_step)
+
+    action = np.array(1, dtype=np.int32)
+    next_time_step = env.step(action)
+    print('Next time step:')
+    print(next_time_step)
