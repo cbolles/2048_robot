@@ -2,6 +2,7 @@ from enum import Enum
 from typing import List, Tuple
 import copy
 import random
+import numpy as np
 
 
 class Direction(Enum):
@@ -17,7 +18,7 @@ class GameModel:
     the game and also provides the functionality for updating the state
     """
     def __init__(self, tiles: List[List[int]], score: int = 0):
-        self.tiles = tiles
+        self.tiles = np.array(tiles, dtype=np.int32)
         self.score = score
 
     def game_over(self) -> bool:
